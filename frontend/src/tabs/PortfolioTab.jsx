@@ -624,6 +624,7 @@ function PortfolioPerformance({ history, lang, chartStyle, currentUser, users })
 
 // ── Positions list ────────────────────────────────────────────────────────────
 function PositionsList({ positions, lang, onEdit }) {
+  const sorted = [...positions].sort((a, b) => (b.current_value || 0) - (a.current_value || 0));
   const total = positions.reduce((s, p) => s + (p.current_value || 0), 0);
   return (
     <section className="tile rise" style={{ animationDelay: '90ms' }}>
@@ -631,7 +632,7 @@ function PositionsList({ positions, lang, onEdit }) {
         <span>{lang === 'de' ? 'POSITIONEN' : 'POSITIONS'} · {positions.length}</span>
         <span className="faint"><span className="pv">{eur(total)}</span></span>
       </div>
-      {positions.map(p => {
+      {sorted.map(p => {
         const w = total > 0 ? (p.current_value / total) * 100 : 0;
         return (
           <button
