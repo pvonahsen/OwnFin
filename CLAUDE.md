@@ -58,10 +58,10 @@
 
 ## Branch / Port Convention
 
-| Branch | Port | Notes |
-|---|---|---|
-| `main` | **8000** | Production — `config.json` maps `"8000/tcp": 8000` |
-| `dev` / feature | **8001** | Dev/test — `config.json` maps `"8000/tcp": 8001` (container 8000 → host 8001) |
+| Branch | Port | Slug | Notes |
+|---|---|---|---|
+| `main` | **8000** | `ownfin` | Production — `config.json` maps `"8000/tcp": 8000` |
+| `dev` / feature | **8001** | `ownfin_beta` | Dev/test — installs as a separate HA add-on alongside production |
 
 **Port is managed automatically by git hooks — you do not need to change it manually.** Hooks in `.githooks/` auto-set the port on `post-checkout` and `post-merge`, and block pushes if the port doesn't match the target branch. CI also validates this.
 
