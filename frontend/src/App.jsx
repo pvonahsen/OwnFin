@@ -414,7 +414,7 @@ export default function App() {
 
   useEffect(() => {
     const root = document.documentElement;
-    const t = auroraIntensity / 100;
+    const t = auroraIntensity / 200;  // slider 0-100 maps to effect range 0-0.5
     root.style.setProperty('--aurora-alpha', t);
     root.style.setProperty('--aurora-stop', `${40 + t * 60}%`);
     root.style.setProperty('--aurora-saturate', 1 + t * 4);
