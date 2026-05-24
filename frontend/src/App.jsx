@@ -367,7 +367,7 @@ export default function App() {
   const [privacyMode, setPrivacyMode] = useState(() => localStorage.getItem('privacy') === 'true');
   const [auroraIntensity, setAuroraIntensity] = useState(() => {
     const v = localStorage.getItem('pref.auroraIntensity');
-    return v !== null ? parseFloat(v) : 100;
+    return v !== null ? parseFloat(v) : 20;
   });
 
   const [users, setUsers] = useState([]);
@@ -413,7 +413,11 @@ export default function App() {
   useEffect(() => { localStorage.setItem('chartStyle', chartStyle); }, [chartStyle]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--aurora-intensity', auroraIntensity / 100);
+    const root = document.documentElement;
+    const t = auroraIntensity / 100;
+    root.style.setProperty('--aurora-alpha', t);
+    root.style.setProperty('--aurora-stop', `${40 + t * 60}%`);
+    root.style.setProperty('--aurora-saturate', 1 + t * 4);
     localStorage.setItem('pref.auroraIntensity', auroraIntensity);
   }, [auroraIntensity]);
 
