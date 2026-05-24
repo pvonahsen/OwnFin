@@ -373,7 +373,7 @@ export default function App() {
   const [users, setUsers] = useState([]);
   const [needsSetup, setNeedsSetup] = useState(false);
 
-  const [tab, setTab]             = useState('ubersicht');
+  const [tab, setTab]             = useState(() => localStorage.getItem('tab') || 'ubersicht');
   const [baseUser, setBaseUser]   = useState(() => localStorage.getItem('baseUser'));
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('baseUser') || null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -408,6 +408,7 @@ export default function App() {
     localStorage.setItem('accent', accentKey);
   }, [accentKey]);
 
+  useEffect(() => { localStorage.setItem('tab', tab); }, [tab]);
   useEffect(() => { localStorage.setItem('lang', lang); }, [lang]);
   useEffect(() => { localStorage.setItem('theme', theme); }, [theme]);
   useEffect(() => { localStorage.setItem('chartStyle', chartStyle); }, [chartStyle]);
@@ -714,6 +715,7 @@ export default function App() {
         syncing={syncing}
         lastSync={lastSync}
         onSyncPrices={triggerSync}
+        onBackfillPrices={() => api.post('/api/prices/backfill', {}).catch(e => alert(e.message))}
       />
 
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>

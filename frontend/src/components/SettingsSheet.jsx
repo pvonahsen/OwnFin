@@ -384,7 +384,7 @@ export default function SettingsSheet({
   chartStyle, onChartStyleToggle,
   auroraIntensity, onAuroraIntensityChange,
   settings, onSettingsSaved,
-  syncing, lastSync, onSyncPrices,
+  syncing, lastSync, onSyncPrices, onBackfillPrices,
   appVersion,
 }) {
   useEffect(() => {
@@ -546,6 +546,23 @@ export default function SettingsSheet({
             </div>
             <div style={{ padding: '10px 14px', fontSize: 11, color: 'var(--ink-faint)' }}>
               {de ? 'Automatischer täglicher Sync um 20:00 Uhr.' : 'Automatic daily sync at 20:00.'}
+            </div>
+            <div style={{ padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontSize: 13 }}>{de ? 'Historische Kurse' : 'Historical prices'}</div>
+                <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 2 }}>{de ? 'Letzte 2 Jahre nachladen' : 'Backfill last 2 years'}</div>
+              </div>
+              <button
+                onClick={onBackfillPrices}
+                style={{
+                  padding: '7px 12px', borderRadius: 10,
+                  background: 'var(--bg-sunken)', border: '1px solid var(--line)',
+                  cursor: 'pointer', fontSize: 12, fontWeight: 500, font: 'inherit',
+                  color: 'var(--ink-muted)',
+                }}
+              >
+                {de ? 'Nachladen' : 'Backfill'}
+              </button>
             </div>
           </Group>
 

@@ -89,6 +89,7 @@ export const phaseAnnotations = (phases) => {
 };
 
 export function moOffset(refM, targetM) {
+  if (!refM || !targetM) return NaN;
   const [ry, rm] = refM.split('-').map(Number);
   const [ty, tm] = targetM.split('-').map(Number);
   return (ty - ry) * 12 + (tm - rm);
