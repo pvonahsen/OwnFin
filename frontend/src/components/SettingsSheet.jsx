@@ -457,17 +457,17 @@ export default function SettingsSheet({
             />
             <SliderRow
               label={de ? 'Hintergrund-Intensität' : 'Background intensity'}
-              value={auroraIntensity ?? 100}
+              value={auroraIntensity ?? 20}
               min={0}
               max={100}
               step={5}
               format={v => `${Math.round(v)}%`}
               onChange={onAuroraIntensityChange}
             />
-            {auroraIntensity !== 100 && (
+            {auroraIntensity !== 20 && (
               <div style={{ padding: '4px 14px 10px', textAlign: 'right' }}>
                 <button
-                  onClick={() => onAuroraIntensityChange(100)}
+                  onClick={() => onAuroraIntensityChange(20)}
                   style={{ fontSize: 11, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                 >
                   {de ? 'Zurücksetzen' : 'Reset to default'}

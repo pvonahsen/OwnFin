@@ -181,9 +181,9 @@ body {
   flex-direction: column;
   position: relative;
   background:
-    radial-gradient(ellipse 90% 55% at 5% 0%,    rgba(237,230,242,var(--aurora-intensity,1)) 0%, transparent 60%),
-    radial-gradient(ellipse 85% 50% at 95% 25%,   rgba(223,236,246,var(--aurora-intensity,1)) 0%, transparent 60%),
-    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(247,233,220,var(--aurora-intensity,1)) 0%, transparent 65%),
+    radial-gradient(ellipse 90% 55% at 5% 0%,    rgba(120,60,210,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
+    radial-gradient(ellipse 85% 50% at 95% 25%,   rgba(50,130,230,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
+    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(255,140,60,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
     var(--bg);
   background-attachment: fixed;
 }
@@ -197,9 +197,9 @@ body {
 
 [data-theme="dark"] .app-shell {
   background:
-    radial-gradient(ellipse 90% 55% at 5% 0%,    rgba(31,20,56,var(--aurora-intensity,1)) 0%, transparent 60%),
-    radial-gradient(ellipse 85% 50% at 95% 25%,   rgba(13,42,66,var(--aurora-intensity,1)) 0%, transparent 60%),
-    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(34,22,42,var(--aurora-intensity,1)) 0%, transparent 65%),
+    radial-gradient(ellipse 90% 55% at 5% 0%,    rgba(90,30,180,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
+    radial-gradient(ellipse 85% 50% at 95% 25%,   rgba(20,70,180,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
+    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(160,40,90,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
     var(--bg);
   background-attachment: fixed;
 }
