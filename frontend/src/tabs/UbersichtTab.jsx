@@ -265,21 +265,25 @@ function PerformanceTile({ history, lang, chartStyle }) {
 
 // ── Phase timeline ────────────────────────────────────────────────────────────
 function PhaseTimeline({ settings, lang, t }) {
-  const phases = [
-    { key: 0, name: t.phase_start, months: settings.ph0, sp: settings.sp0 },
-    { key: 1, name: t.phase_dual,   months: settings.ph1, sp: settings.sp1 },
-    { key: 2, name: t.phase_dual + ' +', months: settings.ph2 ?? (settings.totalMo - settings.ph0 - settings.ph1 - settings.ph3), sp: settings.sp2 },
-    { key: 3, name: t.phase_cash,   months: settings.ph3, sp: settings.sp3 },
-  ];
+  const rawPhases = settings.phases ?? [];
   const phaseColors = ['var(--sage)', 'var(--amber)', 'var(--forest)', 'var(--ocean)'];
   const cur = currentPhaseMo(settings);
   let acc = 0;
-  const enriched = phases.map(p => {
+  const enriched = rawPhases.map((ph, i) => {
     const start = acc;
-    acc += p.months || 0;
-    return { ...p, start, end: acc };
+    acc += ph.duration_months || 0;
+    return {
+      key: i,
+      name: ph.name || `Phase ${i + 1}`,
+      months: ph.duration_months,
+      sp: ph.monthly_savings,
+      start,
+      end: ph.duration_months != null ? acc : Infinity,
+    };
   });
-  const currentIdx = enriched.findIndex(p => cur >= p.start && cur <= p.end);
+  const currentIdx = enriched.findIndex((p, i) =>
+    cur >= p.start && (i === enriched.length - 1 || cur <= p.end)
+  );
   return (
     <section className="tile rise" style={{ animationDelay: '300ms' }}>
       <div className="section-label" style={{ margin: '0 0 8px' }}>
@@ -325,7 +329,11 @@ function PhaseTimeline({ settings, lang, t }) {
                 <div style={{
                   marginTop: 3, fontFamily: 'var(--font-mono)', fontSize: 9.5,
                   letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ink-faint)',
-                }}>{p.months} {lang === 'de' ? 'Monate' : 'months'}</div>
+                }}>
+                  {p.months != null
+                    ? `${p.months} ${lang === 'de' ? 'Monate' : 'months'}`
+                    : (lang === 'de' ? 'bis Ziel' : 'to goal')}
+                </div>
               </div>
               {/* Savings rate */}
               <span style={{
@@ -528,7 +536,7 @@ export default function UbersichtTab({
       <CheckinBanner checkins={checkins} lang={lang} onCheckin={onCheckin} />
       <KPIRow summary={summary} settings={settings} lang={lang} t={t} />
       {history?.length > 0 && <PerformanceTile history={history} lang={lang} chartStyle={chartStyle} />}
-      {settings.ph0 != null && <PhaseTimeline settings={settings} lang={lang} t={t} />}
+      {settings.phases?.length > 0 && <PhaseTimeline settings={settings} lang={lang} t={t} />}
       <MonthlyReview lang={lang} currentUser={currentUser} users={users} settings={settings} />
     </>
   );
