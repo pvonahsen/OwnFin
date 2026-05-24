@@ -65,6 +65,14 @@
 
 **Port is managed automatically by git hooks — you do not need to change it manually.** Hooks in `.githooks/` auto-set the port on `post-checkout` and `post-merge`, and block pushes if the port doesn't match the target branch. CI also validates this.
 
+## Git Workflow
+
+**All changes must go through pull requests — no direct pushes to any branch (including `dev`).**
+
+- Feature/fix branches are created from `dev`, PRed into `dev` for testing, then PRed into `main`
+- Every PR to `main` must include a version bump in `config.json` and a `CHANGELOG.md` entry (enforced by CI `check-release` job)
+- Keep each PR to a single concern — do not mix branch-specific config changes (port, slug) with feature/fix changes
+
 One-time setup per clone (already done on the primary dev machine):
 ```
 git config core.hooksPath .githooks
