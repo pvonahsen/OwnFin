@@ -4,6 +4,13 @@ All notable changes to OwnFin are documented here.
 
 ---
 
+## [2.8.1] — 2026-05-24
+
+### Fixed
+- `currentPhaseMo()` crash (`TypeError: can't access property "split"`) on fresh install when `ref_month` is not yet configured in Settings
+
+---
+
 ## [2.8.0] — 2026-05-24
 
 ### Added
