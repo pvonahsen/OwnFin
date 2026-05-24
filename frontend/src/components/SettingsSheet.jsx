@@ -382,6 +382,7 @@ export default function SettingsSheet({
   density, onDensityChange,
   accent, onAccentChange,
   chartStyle, onChartStyleToggle,
+  auroraIntensity, onAuroraIntensityChange,
   settings, onSettingsSaved,
   syncing, lastSync, onSyncPrices,
   appVersion,
@@ -453,8 +454,26 @@ export default function SettingsSheet({
               label={de ? 'Diagramm-Stil' : 'Chart style'}
               value={chartStyle === 'soft' ? (de ? 'Weich' : 'Soft') : (de ? 'Scharf' : 'Sharp')}
               onClick={onChartStyleToggle}
-              last
             />
+            <SliderRow
+              label={de ? 'Hintergrund-Intensität' : 'Background intensity'}
+              value={auroraIntensity ?? 100}
+              min={0}
+              max={100}
+              step={5}
+              format={v => `${Math.round(v)}%`}
+              onChange={onAuroraIntensityChange}
+            />
+            {auroraIntensity !== 100 && (
+              <div style={{ padding: '4px 14px 10px', textAlign: 'right' }}>
+                <button
+                  onClick={() => onAuroraIntensityChange(100)}
+                  style={{ fontSize: 11, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                >
+                  {de ? 'Zurücksetzen' : 'Reset to default'}
+                </button>
+              </div>
+            )}
             {/* Accent swatches */}
             <div style={{ padding: '12px 14px' }}>
               <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>{de ? 'Akzentfarbe' : 'Accent color'}</div>

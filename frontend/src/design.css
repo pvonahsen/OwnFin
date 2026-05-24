@@ -181,9 +181,9 @@ body {
   flex-direction: column;
   position: relative;
   background:
-    radial-gradient(ellipse 90% 55% at 5% 0%,    #EDE6F2 0%, transparent 60%),
-    radial-gradient(ellipse 85% 50% at 95% 25%,   #DFEcF6 0%, transparent 60%),
-    radial-gradient(ellipse 100% 70% at 50% 100%, #F7E9DC 0%, transparent 65%),
+    radial-gradient(ellipse 90% 55% at 5% 0%,    rgba(237,230,242,var(--aurora-intensity,1)) 0%, transparent 60%),
+    radial-gradient(ellipse 85% 50% at 95% 25%,   rgba(223,236,246,var(--aurora-intensity,1)) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(247,233,220,var(--aurora-intensity,1)) 0%, transparent 65%),
     var(--bg);
   background-attachment: fixed;
 }
@@ -197,9 +197,9 @@ body {
 
 [data-theme="dark"] .app-shell {
   background:
-    radial-gradient(ellipse 90% 55% at 5% 0%,    #1F1438 0%, transparent 60%),
-    radial-gradient(ellipse 85% 50% at 95% 25%,   #0D2A42 0%, transparent 60%),
-    radial-gradient(ellipse 100% 70% at 50% 100%, #22162A 0%, transparent 65%),
+    radial-gradient(ellipse 90% 55% at 5% 0%,    rgba(31,20,56,var(--aurora-intensity,1)) 0%, transparent 60%),
+    radial-gradient(ellipse 85% 50% at 95% 25%,   rgba(13,42,66,var(--aurora-intensity,1)) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(34,22,42,var(--aurora-intensity,1)) 0%, transparent 65%),
     var(--bg);
   background-attachment: fixed;
 }
