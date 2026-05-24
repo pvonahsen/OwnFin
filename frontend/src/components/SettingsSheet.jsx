@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ACCENT_OPTIONS } from '../constants.js';
 import { eur } from '../utils.js';
-import { targetDateToMonths, monthsToTargetDate } from '../calculations.js';
+import { targetDateToMonths, monthsToTargetDate, moOffset } from '../calculations.js';
 import { api, ownerUrl } from '../api.js';
 
 const ICN = {
@@ -167,6 +167,11 @@ function ProjektionSettings({ settings, currentUser, lang, onSaved, isGemeinsam 
         </div>
         {phases.map((ph, i) => {
           const isLast = i === phases.length - 1;
+          // Cumulative months from ref_month to start of this phase
+          const cumStart = phases.slice(0, i).reduce((sum, p) => sum + (p.duration_months ?? 0), 0);
+          const startDateStr = s.ref_month ? monthsToTargetDate(cumStart, s.ref_month) : '';
+          const endDateStr = s.ref_month ? monthsToTargetDate(cumStart + (ph.duration_months ?? 12), s.ref_month) : '';
+          const minEndDate = s.ref_month ? monthsToTargetDate(cumStart + 1, s.ref_month) : '';
           return (
             <div key={i} style={{ borderRadius: 10, border: '1px solid var(--line)', padding: '10px 12px', marginBottom: 8, background: 'var(--bg-sunken)' }}>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>
@@ -185,12 +190,16 @@ function ProjektionSettings({ settings, currentUser, lang, onSaved, isGemeinsam 
               <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                 {!isLast ? (
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginBottom: 3 }}>{de ? 'Dauer (Monate)' : 'Duration (months)'}</div>
+                    <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginBottom: 3 }}>{de ? 'Ende' : 'End date'}</div>
                     <input
-                      type="number" min={1} max={240}
-                      value={ph.duration_months ?? ''}
-                      disabled={isGemeinsam}
-                      onChange={e => setPhase(i, 'duration_months', parseInt(e.target.value) || 1)}
+                      type="month"
+                      value={endDateStr}
+                      min={minEndDate}
+                      disabled={isGemeinsam || !s.ref_month}
+                      onChange={e => {
+                        const newDuration = Math.max(1, moOffset(startDateStr, e.target.value));
+                        setPhase(i, 'duration_months', newDuration);
+                      }}
                       style={{ ...inputStyle, width: '100%' }}
                     />
                   </div>
