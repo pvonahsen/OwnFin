@@ -44,7 +44,7 @@ function CategoryIcon({ name, size = 15, color = 'currentColor' }) {
 
 // ── Giro CSV import sheet ─────────────────────────────────────────────────────
 function ImportGiroSheet({ open, onClose, currentUser, lang, onImported }) {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [bank, setBank] = useState('tomorrow');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -58,20 +58,28 @@ function ImportGiroSheet({ open, onClose, currentUser, lang, onImported }) {
   };
 
   const doImport = async () => {
-    if (!file) return;
+    if (!files.length) return;
     setLoading(true); setResult(null);
-    const fd = new FormData();
-    fd.append('file', file);
-    try {
-      const res = await fetch(`/api/banking/import?owner=${currentUser}&bank=${bank}`, { method: 'POST', body: fd });
-      const data = await res.json();
-      setResult(data);
-      if ((data.imported || 0) > 0) onImported?.();
-    } catch (e) {
-      setResult({ imported: 0, errors: [String(e)] });
-    } finally {
-      setLoading(false);
+    let totalImported = 0, totalRows = 0, totalSkipped = 0;
+    const allErrors = [];
+    for (const f of files) {
+      const fd = new FormData();
+      fd.append('file', f);
+      try {
+        const res = await fetch(`/api/banking/import?owner=${currentUser}&bank=${bank}`, { method: 'POST', body: fd });
+        const data = await res.json();
+        totalImported += data.imported ?? 0;
+        totalRows += data.total_rows ?? ((data.imported ?? 0) + (data.skipped ?? 0));
+        totalSkipped += data.skipped ?? 0;
+        if (data.errors?.length) allErrors.push(...data.errors);
+      } catch (e) {
+        allErrors.push(String(e));
+      }
     }
+    const merged = { imported: totalImported, total_rows: totalRows, skipped: totalSkipped, errors: allErrors };
+    setResult(merged);
+    if (totalImported > 0) onImported?.();
+    setLoading(false);
   };
 
   return (
@@ -101,18 +109,24 @@ function ImportGiroSheet({ open, onClose, currentUser, lang, onImported }) {
           <input
             type="file"
             accept=".csv"
+            multiple
             onChange={async e => {
-              const f = e.target.files[0];
-              setFile(f); setResult(null); setAccountWarning(null);
-              if (f && bank === 'tomorrow') {
-                const detected = await detectCsvOwner(f);
+              const fs = Array.from(e.target.files);
+              setFiles(fs); setResult(null); setAccountWarning(null);
+              if (fs.length === 1 && bank === 'tomorrow') {
+                const detected = await detectCsvOwner(fs[0]);
                 if (detected && detected !== currentUser) {
-                  setAccountWarning({ detectedOwner: detected, file: f });
+                  setAccountWarning({ detectedOwner: detected });
                 }
               }
             }}
             style={{ marginBottom: 12, fontSize: 13, color: 'var(--ink-muted)', width: '100%' }}
           />
+          {files.length > 1 && (
+            <div style={{ fontSize: 12, color: 'var(--ink-muted)', marginBottom: 8 }}>
+              {files.length} {de ? 'Dateien ausgewählt' : 'files selected'}
+            </div>
+          )}
           {accountWarning && (
             <div style={{
               background: 'var(--warn-soft, #fef3c7)', border: '1px solid var(--warn, #d97706)',
@@ -125,7 +139,7 @@ function ImportGiroSheet({ open, onClose, currentUser, lang, onImported }) {
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button
-                  onClick={() => { setAccountWarning(null); setFile(null); }}
+                  onClick={() => { setAccountWarning(null); setFiles([]); }}
                   style={{ flex: 1, padding: '8px', borderRadius: 8, border: '1px solid var(--line)', background: 'var(--bg-sunken)', cursor: 'pointer', font: 'inherit', fontSize: 13 }}
                 >
                   {de ? 'Abbrechen' : 'Cancel'}
@@ -141,12 +155,12 @@ function ImportGiroSheet({ open, onClose, currentUser, lang, onImported }) {
           )}
           <button
             onClick={doImport}
-            disabled={!file || loading}
+            disabled={!files.length || loading}
             style={{
               width: '100%', padding: '11px', borderRadius: 12, border: 'none',
               cursor: 'pointer', background: 'var(--accent)', color: '#fff',
               fontSize: 14, fontWeight: 500, font: 'inherit',
-              opacity: (!file || loading) ? 0.5 : 1,
+              opacity: (!files.length || loading) ? 0.5 : 1,
             }}
           >
             {loading ? '…' : (de ? 'Importieren' : 'Import')}

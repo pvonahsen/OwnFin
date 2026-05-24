@@ -308,27 +308,34 @@ function PositionSheet({ pos, currentUser, lang, onClose, onRefresh }) {
 
 // ── Portfolio CSV import sheet ────────────────────────────────────────────────
 function ImportPortfolioSheet({ open, onClose, currentUser, lang, onImported }) {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const fileRef = useRef(null);
   const de = lang === 'de';
 
   const doImport = async () => {
-    if (!file) return;
+    if (!files.length) return;
     setLoading(true); setResult(null);
-    const fd = new FormData();
-    fd.append('file', file);
-    try {
-      const res = await fetch(ownerUrl('/api/transactions/import', currentUser), { method: 'POST', body: fd });
-      const data = await res.json();
-      setResult(data);
-      if ((data.imported || 0) > 0) onImported?.();
-    } catch (e) {
-      setResult({ imported: 0, errors: [String(e)] });
-    } finally {
-      setLoading(false);
+    let totalImported = 0, totalSkipped = 0;
+    const allErrors = [];
+    for (const f of files) {
+      const fd = new FormData();
+      fd.append('file', f);
+      try {
+        const res = await fetch(ownerUrl('/api/transactions/import', currentUser), { method: 'POST', body: fd });
+        const data = await res.json();
+        totalImported += data.imported ?? 0;
+        totalSkipped += data.skipped ?? 0;
+        if (data.errors?.length) allErrors.push(...data.errors);
+      } catch (e) {
+        allErrors.push(String(e));
+      }
     }
+    const merged = { imported: totalImported, skipped: totalSkipped, errors: allErrors };
+    setResult(merged);
+    if (totalImported > 0) onImported?.();
+    setLoading(false);
   };
 
   return (
@@ -343,8 +350,8 @@ function ImportPortfolioSheet({ open, onClose, currentUser, lang, onImported }) 
         </div>
         <div className="set-body">
           <p style={{ fontSize: 13, color: 'var(--ink-muted)', marginBottom: 12 }}>
-            {de ? 'CSV-Datei mit BUY/SELL-Transaktionen hochladen (Trade Republic, comdirect, etc.).'
-               : 'Upload CSV file with BUY/SELL transactions (Trade Republic, comdirect, etc.).'}
+            {de ? 'CSV-Dateien mit BUY/SELL-Transaktionen hochladen (Trade Republic, comdirect, etc.).'
+               : 'Upload CSV files with BUY/SELL transactions (Trade Republic, comdirect, etc.).'}
           </p>
           <div style={{ background: 'var(--bg-sunken)', borderRadius: 10, padding: 10, marginBottom: 12, fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--ink-faint)', whiteSpace: 'pre' }}>
 {`datetime,date,type,name,symbol,shares,price
@@ -354,17 +361,23 @@ function ImportPortfolioSheet({ open, onClose, currentUser, lang, onImported }) 
             ref={fileRef}
             type="file"
             accept=".csv,.xlsx"
-            onChange={e => { setFile(e.target.files[0]); setResult(null); }}
+            multiple
+            onChange={e => { setFiles(Array.from(e.target.files)); setResult(null); }}
             style={{ marginBottom: 12, fontSize: 13, color: 'var(--ink-muted)', width: '100%' }}
           />
+          {files.length > 1 && (
+            <div style={{ fontSize: 12, color: 'var(--ink-muted)', marginBottom: 8 }}>
+              {files.length} {de ? 'Dateien ausgewählt' : 'files selected'}
+            </div>
+          )}
           <button
             onClick={doImport}
-            disabled={!file || loading}
+            disabled={!files.length || loading}
             style={{
               width: '100%', padding: '11px', borderRadius: 12, border: 'none',
               cursor: 'pointer', background: 'var(--accent)', color: '#fff',
               fontSize: 14, fontWeight: 500, font: 'inherit',
-              opacity: (!file || loading) ? 0.5 : 1,
+              opacity: (!files.length || loading) ? 0.5 : 1,
             }}
           >
             {loading ? '…' : (de ? 'Importieren' : 'Import')}
