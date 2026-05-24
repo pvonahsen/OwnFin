@@ -54,25 +54,27 @@ jobs:
         run: |
           branch="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
           if [ "$branch" = "main" ]; then
-            expected=8000
+            expected_host=8000
           else
-            expected=8001
+            expected_host=8001
           fi
 
+          # run.sh always binds the internal container port 8000 — never changes
           actual_run=$(grep -o '\-\-port [0-9]*' run.sh | awk '{print $2}')
+          # config.json maps container:8000 → host port (branch-dependent)
           actual_cfg=$(python3 -c "import json; d=json.load(open('config.json')); print(list(d['ports'].values())[0])")
 
           ok=true
-          if [ "$actual_run" != "$expected" ]; then
-            echo "ERROR: run.sh has port $actual_run but branch '$branch' expects $expected"
+          if [ "$actual_run" != "8000" ]; then
+            echo "ERROR: run.sh has port $actual_run but must always bind internal port 8000"
             ok=false
           fi
-          if [ "$actual_cfg" != "$expected" ]; then
-            echo "ERROR: config.json has port $actual_cfg but branch '$branch' expects $expected"
+          if [ "$actual_cfg" != "$expected_host" ]; then
+            echo "ERROR: config.json maps to host port $actual_cfg but branch '$branch' expects $expected_host"
             ok=false
           fi
           if [ "$ok" != "true" ]; then exit 1; fi
-          echo "OK: branch '$branch' → port $expected (run.sh: $actual_run, config.json: $actual_cfg)"
+          echo "OK: run.sh internal port $actual_run, config.json host port $actual_cfg (branch '$branch' expects host $expected_host)"
 
   check-release:
     name: Release check (PRs to main only)
