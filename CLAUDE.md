@@ -72,6 +72,14 @@ git config core.hooksPath .githooks
 
 Do **not** use `environment.PORT` — HA Supervisor ignores the `environment` field in `config.json`.
 
+## Git Workflow
+
+**All changes must go through pull requests — no direct pushes to any branch (including `dev`).**
+
+- Feature/fix branches are created from `dev`, PRed into `dev` for testing, then PRed into `main`
+- Every PR to `main` must include a version bump in `config.json` and a `CHANGELOG.md` entry (enforced by CI `check-release` job)
+- Keep each PR to a single concern — do not mix branch-specific config changes (port, slug) with feature/fix changes
+
 ## Architecture
 
 **Backend**: FastAPI + SQLite3 (WAL mode), APScheduler, yfinance.
