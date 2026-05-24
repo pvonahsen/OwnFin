@@ -109,6 +109,7 @@ export function monthsToTargetDate(months, refMonth) {
 }
 
 export function currentPhaseMo(s) {
+  if (!s?.ref_month) return 0;
   const now = new Date();
   const [ry, rm] = s.ref_month.split('-').map(Number);
   const wholeMonths = (now.getFullYear() - ry) * 12 + (now.getMonth() + 1 - rm);
