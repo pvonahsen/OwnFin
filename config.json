@@ -1,6 +1,6 @@
 {
-  "name": "Finance Tracker",
-  "description": "Persönliches Finanz-Dashboard",
+  "name": "OwnFin",
+  "description": "Self-hosted personal finance dashboard",
   "version": "2.7.0",
   "slug": "finance_tracker",
   "init": false,

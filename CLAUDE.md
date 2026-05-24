@@ -1,4 +1,4 @@
-# Finance Tracker — Developer Guide
+# OwnFin — Developer Guide
 
 ## Current Version: 2.7.0
 

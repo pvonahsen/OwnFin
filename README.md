@@ -1,4 +1,4 @@
-# Finance Tracker
+# OwnFin
 
 A self-hosted personal finance dashboard with portfolio tracking, savings projection, bank transaction analysis, and automatic price sync. Runs as a Docker container — built for Home Assistant OS but works standalone.
 
