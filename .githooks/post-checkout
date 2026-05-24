@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+# $3=1 means branch checkout; $3=0 means file checkout — skip file checkouts
+[ "$3" = "1" ] && . "$(git rev-parse --show-toplevel)/.githooks/set-port.sh"

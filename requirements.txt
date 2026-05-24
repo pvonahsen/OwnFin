@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+yfinance
+apscheduler>=3.10,<4.0
+pandas
+openpyxl
+python-multipart
+pytest
+httpx

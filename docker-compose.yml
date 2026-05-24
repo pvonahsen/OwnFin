@@ -1,0 +1,13 @@
+services:
+  finanz-dashboard:
+    build: .
+    ports:
+      - "8765:8000"
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Vienna
+    volumes:
+      - finanz-data:/data
+
+volumes:
+  finanz-data:

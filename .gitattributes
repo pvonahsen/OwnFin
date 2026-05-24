@@ -1,0 +1,12 @@
+# Normalize line endings: store as LF, checkout as native
+* text=auto
+
+# Shell scripts always LF (run on Linux in Docker/HAOS)
+*.sh text eol=lf
+run.sh text eol=lf
+.githooks/post-checkout text eol=lf
+.githooks/post-merge text eol=lf
+.githooks/pre-push text eol=lf
+
+# Windows scripts — CRLF fine
+*.ps1 text eol=crlf

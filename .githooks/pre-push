@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+# Block push if port doesn't match target branch.
+# Remote name and URL are piped in; read the ref being pushed.
+remote="$1"
+while read local_ref local_sha remote_ref remote_sha; do
+  target_branch=$(echo "$remote_ref" | sed 's|refs/heads/||')
+  if [ "$target_branch" = "main" ]; then
+    EXPECTED=8000
+  else
+    EXPECTED=8001
+  fi
+  actual=$(grep -o '\-\-port [0-9]*' run.sh | awk '{print $2}')
+  if [ "$actual" != "$EXPECTED" ]; then
+    echo "[pre-push] ERROR: Pushing to '$target_branch' requires port $EXPECTED, but run.sh has port $actual."
+    echo "[pre-push] Run: git checkout $target_branch  (the post-checkout hook will fix the port automatically)"
+    exit 1
+  fi
+done

@@ -1,0 +1,38 @@
+# Database — contains real financial data, never commit
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Personal financial data directories
+csv imports/
+design_extract/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+
+# Node / Vite
+node_modules/
+frontend/dist/
+
+# IDE / tools
+.vscode/
+.idea/
+*.swp
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
