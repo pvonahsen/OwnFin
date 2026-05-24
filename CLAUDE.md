@@ -1,6 +1,6 @@
 # OwnFin — Developer Guide
 
-## Current Version: 2.7.0
+## Current Version: 2.8.0
 
 > **Versioning convention**: Milestone-based, not strict semver. MAJOR = significant redesign or feature epoch. MINOR = new feature. PATCH = bug fix. No external API consumers, so breaking-change semantics don't apply.
 
