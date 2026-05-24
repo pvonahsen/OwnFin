@@ -365,6 +365,10 @@ export default function App() {
   const [accentKey, setAccentKey] = useState(() => localStorage.getItem('accent') || ACCENT_OPTIONS[0].accent);
   const [chartStyle, setChartStyle] = useState(() => localStorage.getItem('chartStyle') || 'soft');
   const [privacyMode, setPrivacyMode] = useState(() => localStorage.getItem('privacy') === 'true');
+  const [auroraIntensity, setAuroraIntensity] = useState(() => {
+    const v = localStorage.getItem('pref.auroraIntensity');
+    return v !== null ? parseFloat(v) : 100;
+  });
 
   const [users, setUsers] = useState([]);
   const [needsSetup, setNeedsSetup] = useState(false);
@@ -407,6 +411,11 @@ export default function App() {
   useEffect(() => { localStorage.setItem('lang', lang); }, [lang]);
   useEffect(() => { localStorage.setItem('theme', theme); }, [theme]);
   useEffect(() => { localStorage.setItem('chartStyle', chartStyle); }, [chartStyle]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--aurora-intensity', auroraIntensity / 100);
+    localStorage.setItem('pref.auroraIntensity', auroraIntensity);
+  }, [auroraIntensity]);
 
   // Load users once on mount
   useEffect(() => {
@@ -693,6 +702,8 @@ export default function App() {
         onAccentChange={opt => setAccentKey(opt.accent)}
         chartStyle={chartStyle}
         onChartStyleToggle={() => setChartStyle(v => v === 'soft' ? 'sharp' : 'soft')}
+        auroraIntensity={auroraIntensity}
+        onAuroraIntensityChange={setAuroraIntensity}
         settings={settings}
         appVersion={appVersion}
         onSettingsSaved={loadAll}
