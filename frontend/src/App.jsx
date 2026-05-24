@@ -414,8 +414,10 @@ export default function App() {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.style.setProperty('--aurora-alpha', auroraIntensity / 100);
-    root.style.setProperty('--aurora-stop', `${40 + auroraIntensity * 0.6}%`);
+    const clamped = Math.min(100, auroraIntensity);
+    root.style.setProperty('--aurora-alpha', clamped / 100);
+    root.style.setProperty('--aurora-stop', `${40 + clamped * 0.6}%`);
+    root.style.setProperty('--aurora-saturate', 1 + Math.max(0, auroraIntensity - 100) / 25);
     localStorage.setItem('pref.auroraIntensity', auroraIntensity);
   }, [auroraIntensity]);
 

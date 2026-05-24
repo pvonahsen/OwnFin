@@ -180,12 +180,19 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
+}
+
+.app-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
   background:
     radial-gradient(ellipse 90% 55% at 5% 0%,    rgba(120,60,210,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
     radial-gradient(ellipse 85% 50% at 95% 25%,   rgba(50,130,230,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
-    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(255,140,60,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
-    var(--bg);
-  background-attachment: fixed;
+    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(255,140,60,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%));
+  filter: saturate(var(--aurora-saturate, 1));
 }
 
 /* ─── Inner shell — flex column, document scroll handles overflow on mobile ─── */
@@ -195,13 +202,11 @@ body {
   flex-direction: column;
 }
 
-[data-theme="dark"] .app-shell {
+[data-theme="dark"] .app-shell::before {
   background:
     radial-gradient(ellipse 90% 55% at 5% 0%,    rgba(90,30,180,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
     radial-gradient(ellipse 85% 50% at 95% 25%,   rgba(20,70,180,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
-    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(160,40,90,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%)),
-    var(--bg);
-  background-attachment: fixed;
+    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(160,40,90,var(--aurora-alpha,0.2)) 0%, transparent var(--aurora-stop,52%));
 }
 
 /* ─── Mobile header ─── */

@@ -459,7 +459,7 @@ export default function SettingsSheet({
               label={de ? 'Hintergrund-Intensität' : 'Background intensity'}
               value={auroraIntensity ?? 20}
               min={0}
-              max={100}
+              max={200}
               step={5}
               format={v => `${Math.round(v)}%`}
               onChange={onAuroraIntensityChange}
