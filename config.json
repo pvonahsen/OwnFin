@@ -1,8 +1,8 @@
 {
-  "name": "OwnFin",
-  "description": "Self-hosted personal finance dashboard",
+  "name": "OwnFin Beta",
+  "description": "Self-hosted personal finance dashboard (beta/dev)",
   "version": "2.8.0",
-  "slug": "ownfin",
+  "slug": "ownfin_beta",
   "init": false,
   "startup": "application",
   "arch": ["aarch64", "amd64", "armhf", "armv7"],
