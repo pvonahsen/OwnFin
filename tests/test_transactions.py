@@ -161,3 +161,43 @@ def test_csv_import_blocked_for_gemeinsam(client):
         files={"file": ("tr_export.csv", io.BytesIO(_TR_CSV), "text/csv")},
     )
     assert r.status_code == 400
+
+
+# ── Flatex running-balance column ─────────────────────────────────────────────
+
+# Flatex CSV with a "Saldo nach Buchung" running-balance column.
+# The function should return the LAST saldo value (3500.00), not the sum of amounts.
+_FLATEX_CSV = """\
+buchungstag;buchungsinformation;buchungsbetrag;saldo nach buchung
+2026-01-01;Einlage;2000,00;2000,00
+2026-01-10;Kauf ETF;-1000,00;1000,00
+2026-02-01;Dividende;50,00;1050,00
+2026-03-01;Verkauf ETF;2450,00;3500,00
+""".encode()
+
+
+def test_flatex_uses_saldo_column(db_conn):
+    """parse_cash_balance should prefer the last Saldo value over summing amounts."""
+    from importer import parse_cash_balance
+    balance, broker = parse_cash_balance(_FLATEX_CSV)
+    assert broker == "Flatex"
+    # Last saldo = 3500, NOT the sum of amounts (2000 - 1000 + 50 + 2450 = 3500 coincidence,
+    # so use a CSV where they differ to really test the column-preference path)
+    assert balance == pytest.approx(3500.0, abs=0.01)
+
+
+_FLATEX_CSV_PARTIAL = """\
+buchungstag;buchungsinformation;buchungsbetrag;saldo nach buchung
+2026-03-01;Verkauf ETF;600,00;4200,00
+2026-03-15;Gebühr;-5,00;4195,00
+""".encode()
+
+
+def test_flatex_partial_export_uses_last_saldo(db_conn):
+    """Partial-history export: saldo column gives correct balance even though
+    summing only these two rows would give 595, not 4195."""
+    from importer import parse_cash_balance
+    balance, broker = parse_cash_balance(_FLATEX_CSV_PARTIAL)
+    assert broker == "Flatex"
+    # sum of amounts = 600 - 5 = 595 (wrong); last saldo = 4195 (correct)
+    assert balance == pytest.approx(4195.0, abs=0.01)

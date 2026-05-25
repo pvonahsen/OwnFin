@@ -507,6 +507,18 @@ _BROKER_LABELS = {
     "bitpanda":       "Bitpanda",
 }
 
+# Column names that contain a running account balance (not a per-row amount).
+# Prefer these over summing transaction amounts — they reflect the true balance
+# even when the CSV covers only a partial history.
+_BALANCE_COLS = (
+    "saldo nach buchung",   # Flatex
+    "saldo",                # Flatex variant / generic German
+    "balance after booking",
+    "balance",              # generic English
+    "account balance",
+    "kontostand",
+)
+
 
 def _extract_row_eur_amount(r: dict) -> Optional[float]:
     for col in _CASH_AMOUNT_COLS:
@@ -523,14 +535,33 @@ def _extract_row_eur_amount(r: dict) -> Optional[float]:
     return None
 
 
+def _extract_running_balance(r: dict) -> Optional[float]:
+    """Return the running balance from a row if a balance column is present."""
+    for col in _BALANCE_COLS:
+        v = r.get(col, "").strip()
+        if not v or v in ("-", "n/a", "N/A"):
+            continue
+        try:
+            negative = v.startswith("-") or v.startswith("−") or v.startswith("–")
+            amount = _parse_num(v)
+            return -amount if negative else amount
+        except ValueError:
+            continue
+    return None
+
+
 def parse_cash_balance(content_bytes: bytes) -> tuple:
     """
-    Sum all EUR cash-flow amounts across every row in a broker CSV to derive
-    the current cash balance (deposits +, buys −, sells +, fees −, dividends +).
+    Derive the current cash balance from a broker CSV.
 
-    Requires the CSV to have a known EUR amount column (see _CASH_AMOUNT_COLS).
+    Strategy (in priority order):
+    1. If the CSV has a running-balance column (e.g. Flatex "Saldo nach Buchung"),
+       use the LAST non-empty value — accurate even for partial-history exports.
+    2. Otherwise sum all per-row EUR amounts (deposits +, buys −, sells +, fees −).
+       This is correct only for complete-history exports (Trade Republic full export).
+
     Returns (balance: float, broker_label: str) on success,
-    or (None, broker_label) if the format is known but lacks an amount column,
+    or (None, broker_label) if the format is known but no balance data found,
     or (None, None) for unknown/generic formats.
     """
     text = None
@@ -558,6 +589,17 @@ def parse_cash_balance(content_bytes: bytes) -> tuple:
     if not broker_label:
         return None, None  # generic format — can't confidently label the broker
 
+    # Pass 1: try running-balance column (last non-null value wins)
+    last_balance = None
+    for raw in rows:
+        r = _norm_headers(raw)
+        bal = _extract_running_balance(r)
+        if bal is not None:
+            last_balance = bal
+    if last_balance is not None:
+        return (round(last_balance, 2), broker_label)
+
+    # Pass 2: fall back to summing per-row transaction amounts
     total = 0.0
     found_any = False
     for raw in rows:
