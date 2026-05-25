@@ -169,9 +169,10 @@ function ProjektionSettings({ settings, currentUser, lang, onSaved, isGemeinsam 
           const isLast = i === phases.length - 1;
           // Cumulative months from ref_month to start of this phase
           const cumStart = phases.slice(0, i).reduce((sum, p) => sum + (p.duration_months ?? 0), 0);
-          const startDateStr = s.ref_month ? monthsToTargetDate(cumStart, s.ref_month) : '';
-          const endDateStr = s.ref_month ? monthsToTargetDate(cumStart + (ph.duration_months ?? 12), s.ref_month) : '';
-          const minEndDate = s.ref_month ? monthsToTargetDate(cumStart + 1, s.ref_month) : '';
+          const refMonth = s.ref_month || new Date().toISOString().slice(0, 7);
+          const startDateStr = monthsToTargetDate(cumStart, refMonth);
+          const endDateStr = monthsToTargetDate(cumStart + (ph.duration_months ?? 12), refMonth);
+          const minEndDate = monthsToTargetDate(cumStart + 1, refMonth);
           return (
             <div key={i} style={{ borderRadius: 10, border: '1px solid var(--line)', padding: '10px 12px', marginBottom: 8, background: 'var(--bg-sunken)' }}>
               <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>
@@ -195,7 +196,7 @@ function ProjektionSettings({ settings, currentUser, lang, onSaved, isGemeinsam 
                       type="month"
                       value={endDateStr}
                       min={minEndDate}
-                      disabled={isGemeinsam || !s.ref_month}
+                      disabled={isGemeinsam}
                       onChange={e => {
                         const newDuration = Math.max(1, moOffset(startDateStr, e.target.value));
                         setPhase(i, 'duration_months', newDuration);

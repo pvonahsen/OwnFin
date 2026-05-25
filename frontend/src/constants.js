@@ -25,7 +25,7 @@ export function bucketOf(cat) {
 
 export function bucketOfDynamic(cat, categories = []) {
   const found = categories.find(c => c.name === cat);
-  return found?.bucket || 'guilt';
+  return found?.bucket || bucketOf(cat);
 }
 
 export const ACCENT_OPTIONS = [

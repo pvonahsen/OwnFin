@@ -395,6 +395,16 @@ def _migrate_banking_tables(conn):
     conn.commit()
 
 
+def _migrate_seed_default_categories(conn: sqlite3.Connection) -> None:
+    """Insert any missing default categories (safe for existing DBs that already have 2+ rows)."""
+    for c in _DEFAULT_BANK_CATEGORIES:
+        conn.execute(
+            "INSERT OR IGNORE INTO bank_categories (name, type, color, icon, split_default, bucket) VALUES (?,?,?,?,?,?)",
+            (c["name"], c["type"], c["color"], c["icon"], c["split_default"], c["bucket"]),
+        )
+    conn.commit()
+
+
 def _migrate_create_users_table(conn: sqlite3.Connection) -> None:
     """
     Seed the users table from existing owner data in the DB.
@@ -636,6 +646,7 @@ def init_db() -> None:
     _run_once(conn, "create_users_v1",             _migrate_create_users_table)
     _run_once(conn, "create_phases_v1",            _migrate_create_phases_table)
     _run_once(conn, "add_scheduler_tax_fields_v1", _migrate_add_scheduler_tax_fields)
+    _run_once(conn, "seed_default_categories_v1", _migrate_seed_default_categories)
 
     # Startup recalculation — not a migration, always runs
     _recalc_all_positions(conn)
