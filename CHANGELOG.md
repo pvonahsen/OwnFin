@@ -4,6 +4,23 @@ All notable changes to OwnFin are documented here.
 
 ---
 
+## [2.9.0] — 2026-05-25
+
+### Added
+- **Adjustable aurora/background intensity** — 0–100% slider in Settings → Appearance (default 20%). Stored in `localStorage`. Gradient isolated to `::before` pseudo-element so the saturation filter doesn't bleed into UI content.
+- **Phase end dates as calendar pickers** — settings phase editor now shows a `type="month"` picker for each non-last phase instead of a raw "Duration (months)" number input. Converts to `duration_months` on save; data model unchanged.
+- **Multi-file CSV import** — both the bank (GiroTab) and portfolio (PortfolioTab) import sheets now accept multiple files at once. Files are POSTed sequentially; results are aggregated.
+- **Backfill historical prices button** — added to Settings → Price data; triggers `POST /api/prices/backfill` (last 2 years).
+
+### Fixed
+- **Phase timeline in Overview** — was reading old `ph0/sp0` settings keys (no longer written); now reads `settings.phases` array correctly.
+- **Tab persistence** — active tab is saved to `localStorage` and restored on page reload.
+- **Portfolio sort by value** — position list now sorts by current market value (descending) by default.
+- **Projections null crash** — `moOffset()` returns `NaN` for null args; prevents TypeError on fresh install before `ref_month` is set.
+- **Broker cash balance for partial exports** — `parse_cash_balance()` now prefers a running-balance column (`Saldo nach Buchung` etc.) over summing transaction amounts. Fixes Flatex partial-history imports that previously produced wrong (too-low) balances. Fallback to summation preserved for Trade Republic full-history exports.
+
+---
+
 ## [2.8.1] — 2026-05-24
 
 ### Fixed
