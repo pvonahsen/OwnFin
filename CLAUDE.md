@@ -1,12 +1,24 @@
 # OwnFin — Developer Guide
 
-## Current Version: 2.8.0
+## Current Version: 2.9.0
 
 > **Versioning convention**: Milestone-based, not strict semver. MAJOR = significant redesign or feature epoch. MINOR = new feature. PATCH = bug fix. No external API consumers, so breaking-change semantics don't apply.
 
 > **For Claude Code sessions (web + desktop):** This file is the shared memory between sessions. Update it whenever you make a significant architectural change, add a new table, change a key business rule, or alter an API contract. Commit it with the same PR as the change so the next session always has accurate context.
 
 ## Recent Changes (update this section with each session)
+
+### v2.9.0 — 2026-05-25
+- **Aurora intensity slider** (#15): `auroraIntensity` pref (0–100, default 20) in localStorage. `App.jsx` maps to CSS `--aurora-alpha`, `--aurora-stop`, `--aurora-saturate` via `t = intensity/200`. Gradient moved to `.app-shell::before` (fixed, `z-index:-1`) so `filter:saturate()` doesn't affect UI content. SliderRow + reset button in SettingsSheet Appearance group.
+- **Phase timeline display fix** (#13): `PhaseTimeline` in `UbersichtTab` now reads from `settings.phases` array. Old `ph0/sp0` settings keys no longer exist; guard changed from `settings.ph0 != null` to `settings.phases?.length > 0`.
+- **Tab persistence** (#12): active tab stored in `localStorage('tab')` and restored on mount in `App.jsx`.
+- **Portfolio sort by value** (#9): `PositionsList` sorts by `current_value` descending before rendering.
+- **Projections null crash guard** (#7): `moOffset()` in `calculations.js` returns `NaN` for null args; callers already use `isFinite()` checks.
+- **Backfill button** (#10): button in SettingsSheet "Price data" group fires `POST /api/prices/backfill`.
+- **Multi-file import** (#11): `multiple` attribute on file inputs in both `ImportGiroSheet` (GiroTab) and `ImportPortfolioSheet` (PortfolioTab). Files processed sequentially; results aggregated. Account-owner warning still fires for single-file Tomorrow imports only.
+- **Phase end dates as calendar pickers** (#14): SettingsSheet phase editor replaced "Duration (months)" number input with `type="month"` picker showing absolute end date. `moOffset(startDate, newEndDate)` converts back to `duration_months`.
+- **Cash balance parsing fix** (#8): `parse_cash_balance()` now prefers a running-balance column (`saldo nach buchung`, `saldo`, `balance`, etc.) over summing transaction amounts. Fixes partial-history Flatex exports. Fallback to summation for TR (correct for full exports).
+- **Tests**: 114 backend (was 108), 74 frontend unchanged.
 
 ### v2.7.0 — 2026-05-23
 - **Transaction dedup by ISIN**: `transaction_exists()` now matches by `(ISIN, date, price×units)` instead of `(position_id, date, units, price)`. Robust across position re-creation. Falls back to position_id if no ISIN.
@@ -49,7 +61,7 @@
 
 ### v2.2.0 — 2026-05-22
 - **New `broker_cash` table**: `(owner, broker, balance, last_import, updated_at)` — PRIMARY KEY `(owner, broker)`. Stores cash balance per broker derived from CSV imports.
-- **Broker cash derivation** (`importer.py`): `parse_cash_balance(bytes) → (float|None, str|None)` sums all EUR amounts from every row in a TR/Flatex CSV using `_CASH_AMOUNT_COLS` (`gesamtbetrag`, `buchungsbetrag`, `amount`, etc.). Sign is preserved — `_parse_num` strips sign, so detection happens before calling it.
+- **Broker cash derivation** (`importer.py`): `parse_cash_balance(bytes) → (float|None, str|None)` first tries to read the last non-null running-balance column (`_BALANCE_COLS`: `saldo nach buchung`, `saldo`, `balance`, etc.); falls back to summing all `_CASH_AMOUNT_COLS` amounts (correct for full-history TR exports). Sign is preserved — `_parse_num` strips sign, so detection happens before calling it.
 - **`GET /api/portfolio/broker_cash`**: returns `{entries: [...], total: N}` per-broker breakdown.
 - **`GET /api/portfolio/summary`** `cash_value` now: reads `broker_cash` total first, falls back to `settings.cash` if no broker cash imported yet. Fully backward compatible.
 - **`POST /api/transactions/import`** response now includes `broker_cash: {broker, balance}`.
