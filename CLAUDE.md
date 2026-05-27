@@ -1,12 +1,17 @@
 # OwnFin — Developer Guide
 
-## Current Version: 2.8.0
+## Current Version: 2.8.2-beta (dev) / 2.8.1 (main)
 
 > **Versioning convention**: Milestone-based, not strict semver. MAJOR = significant redesign or feature epoch. MINOR = new feature. PATCH = bug fix. No external API consumers, so breaking-change semantics don't apply.
 
 > **For Claude Code sessions (web + desktop):** This file is the shared memory between sessions. Update it whenever you make a significant architectural change, add a new table, change a key business rule, or alter an API contract. Commit it with the same PR as the change so the next session always has accurate context.
 
 ## Recent Changes (update this section with each session)
+
+### v2.8.2-beta — 2026-05-27
+- **bucketOfDynamic fallback**: now falls back to `bucketOf(cat)` (static map) instead of hardcoding `'guilt'` — correct bucket for any unmatched category name.
+- **Default categories seeded**: new `seed_default_categories_v1` migration runs `INSERT OR IGNORE` for all 23 `_DEFAULT_BANK_CATEGORIES` entries — existing DBs that only had 2 rows ("Sparen", "Investieren") now get the full list on next startup.
+- **Phase date picker always enabled**: removed `disabled={!s.ref_month}`; `refMonth` falls back to current month so the picker is never grayed out.
 
 ### v2.7.0 — 2026-05-23
 - **Transaction dedup by ISIN**: `transaction_exists()` now matches by `(ISIN, date, price×units)` instead of `(position_id, date, units, price)`. Robust across position re-creation. Falls back to position_id if no ISIN.
@@ -77,8 +82,18 @@ Do **not** use `environment.PORT` — HA Supervisor ignores the `environment` fi
 **All changes must go through pull requests — no direct pushes to any branch (including `dev`).**
 
 - Feature/fix branches are created from `dev`, PRed into `dev` for testing, then PRed into `main`
-- Every PR to `main` must include a version bump in `config.json` and a `CHANGELOG.md` entry (enforced by CI `check-release` job)
+- **Every PR (including to `dev`) must include a version bump in `config.json` and a `CHANGELOG.md` entry** — so HA Supervisor picks up the new version on the beta add-on
+- Every PR to `main` also requires the above (enforced by CI `check-release` job)
 - Keep each PR to a single concern — do not mix branch-specific config changes (port, slug) with feature/fix changes
+
+### Versioning scheme
+
+| Target | Format | Example |
+|---|---|---|
+| `dev` / feature PRs | `X.Y.Z-beta` (patch bump + `-beta` suffix) | `2.8.2-beta`, `2.8.3-beta` |
+| `main` PRs | `X.Y.Z` (clean semver, MINOR for features, PATCH for fixes) | `2.9.0`, `2.9.1` |
+
+The `-beta` suffix signals a dev release; HA compares versions numerically on the base part so `2.8.2-beta > 2.8.1`. When a feature stream lands on main, the clean version (`2.9.0`) supersedes any `2.8.x-beta` dev builds.
 
 ## Architecture
 

@@ -4,6 +4,15 @@ All notable changes to OwnFin are documented here.
 
 ---
 
+## [2.8.2-beta] — 2026-05-27
+
+### Fixed
+- `bucketOfDynamic()` fell back to `'guilt'` instead of delegating to `bucketOf()` — all unmatched categories now get the correct bucket assignment
+- Default categories (23 total) were never seeded on existing installs that already had 2+ rows in `bank_categories`; new `seed_default_categories_v1` migration seeds all missing defaults on next startup
+- Phase end-date picker was disabled when `ref_month` is not configured; picker now always interactive (falls back to current month)
+
+---
+
 ## [2.8.1] — 2026-05-24
 
 ### Fixed
