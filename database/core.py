@@ -36,6 +36,7 @@ DEFAULT_SETTINGS = {
     "capital_gains_tax_rate": 0.275,
     "scheduler_timezone": "Europe/Vienna",
     "scheduler_sync_time": "20:00",
+    "monthly_income": 0,
 }
 
 # Kept so existing imports don't break. Points to neutral defaults.

@@ -247,7 +247,7 @@ function bucketsForRange(txns, fromDate, toDate, categories = []) {
 }
 
 // ── Giro hero (income + 4 buckets) ───────────────────────────────────────────
-function GiroHero({ txns, lang, period, onPeriodChange, monthOffset, onMonthOffsetChange, categories, activeBucket, onBucketClick, targets, onSettingsOpen, showShared, onToggleShared, bucketColors }) {
+function GiroHero({ txns, lang, period, onPeriodChange, monthOffset, onMonthOffsetChange, categories, activeBucket, onBucketClick, targets, monthlyIncome, onSettingsOpen, showShared, onToggleShared, bucketColors }) {
   const today = new Date();
   let from, to, label;
   if (period === 'month') {
@@ -394,8 +394,12 @@ function GiroHero({ txns, lang, period, onPeriodChange, monthOffset, onMonthOffs
           const target = (targets && targets[k] != null) ? targets[k] : BUCKETS[k].target;
           const meta = BUCKETS[k];
           const delta = deltas[k];
-          const overTarget = pctOfSpend > target;
-          const progPct = Math.min(100, target > 0 ? (pctOfSpend / target) * 100 : 0);
+          const hasIncome = (monthlyIncome || 0) > 0;
+          const targetEur = hasIncome ? monthlyIncome * target / 100 : null;
+          const overTarget = hasIncome ? v > targetEur : pctOfSpend > target;
+          const progPct = hasIncome
+            ? Math.min(100, targetEur > 0 ? (v / targetEur) * 100 : 0)
+            : Math.min(100, target > 0 ? (pctOfSpend / target) * 100 : 0);
           const isActive = activeBucket === k;
           const dimmed = activeBucket && !isActive;
           return (
@@ -416,9 +420,20 @@ function GiroHero({ txns, lang, period, onPeriodChange, monthOffset, onMonthOffs
                 <span className="bucket-name">{lang === 'de' ? meta.de : meta.en}</span>
               </div>
               <div className="bucket-hint">{lang === 'de' ? meta.en : meta.de}</div>
-              <div className="bucket-amount"><span className="pv">{eur(v)}</span></div>
+              <div className="bucket-amount">
+                <span className="pv">{eur(v)}</span>
+                {targetEur != null && (
+                  <span className="faint" style={{ fontSize: 11, fontWeight: 400, marginLeft: 4 }}>/ {eur(targetEur)}</span>
+                )}
+              </div>
               <div className="bucket-meta">
-                <span>{pctOfSpend.toFixed(0)}%<span className="faint"> / {target}%</span></span>
+                {hasIncome ? (
+                  <span style={{ color: overTarget ? 'var(--neg)' : 'inherit' }}>
+                    {pctOfSpend.toFixed(0)}%<span className="faint"> / {target}%</span>
+                  </span>
+                ) : (
+                  <span>{pctOfSpend.toFixed(0)}%<span className="faint"> / {target}%</span></span>
+                )}
                 <span className={`delta ${delta < 0 ? 'pos' : 'neg'}`}>
                   {delta > 0 ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
                 </span>
@@ -1271,6 +1286,7 @@ export default function GiroTab({
         activeBucket={activeBucket}
         onBucketClick={handleBucketClick}
         targets={targets}
+        monthlyIncome={settings?.monthly_income ?? 0}
         onSettingsOpen={() => setGiroSettingsOpen(true)}
         showShared={showShared}
         onToggleShared={hasSharedAccounts && !isGemeinsamUser ? () => setShowShared(v => !v) : null}

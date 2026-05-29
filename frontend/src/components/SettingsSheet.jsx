@@ -266,6 +266,7 @@ function GiroSettings({ settings, currentUser, lang, onSaved, isGemeinsam }) {
       target_pct_goals:  settings.target_pct_goals  ?? 10,
       target_pct_guilt:  settings.target_pct_guilt  ?? 20,
       shared_account_share: settings.shared_account_share ?? 50,
+      monthly_income: settings.monthly_income ?? 0,
     });
   }, [settings]);
 
@@ -284,13 +285,26 @@ function GiroSettings({ settings, currentUser, lang, onSaved, isGemeinsam }) {
 
   return (
     <div>
+      {/* Monthly income — turns percentage targets into absolute € amounts */}
+      <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 13 }}>{de ? 'Monatliches Nettoeinkommen' : 'Monthly net income'}</span>
+        <input
+          type="number" min={0} step={100}
+          value={s.monthly_income}
+          disabled={isGemeinsam}
+          onChange={e => set('monthly_income', parseFloat(e.target.value) || 0)}
+          style={{ background: 'var(--bg-sunken)', border: '1px solid var(--line)', borderRadius: 8, padding: '4px 8px', fontSize: 12, color: 'var(--ink)', fontFamily: 'var(--font-mono)', width: 90 }}
+        />
+      </div>
       {['fix', 'invest', 'goals', 'guilt'].map(k => (
         <SliderRow
           key={k}
           label={de ? BUCKET_LABELS[k].de : BUCKET_LABELS[k].en}
           value={s[`target_pct_${k}`]}
           min={0} max={80} step={5}
-          format={v => `${v}%`}
+          format={v => s.monthly_income > 0
+            ? `${v}% · ${eur(s.monthly_income * v / 100)}`
+            : `${v}%`}
           onChange={v => set(`target_pct_${k}`, v)}
           disabled={isGemeinsam}
         />

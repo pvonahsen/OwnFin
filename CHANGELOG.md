@@ -4,6 +4,15 @@ All notable changes to OwnFin are documented here.
 
 ---
 
+## [2.8.3-beta] — 2026-05-29
+
+### Added
+- **Monthly net income setting**: new `monthly_income` field in Settings → Giro & Household; when set, turns percentage targets into absolute € amounts
+- **Absolute budget targets in Big 4**: bucket cards now show `€actual / €target` (e.g. `€842 / €1.500`) when income is configured; progress bar and over-budget highlight use the absolute amounts; percentage view unchanged when no income is set
+- Slider labels in Giro settings also preview the € equivalent while dragging (e.g. `50% · €1.500`)
+
+---
+
 ## [2.8.2-beta] — 2026-05-27
 
 ### Fixed
