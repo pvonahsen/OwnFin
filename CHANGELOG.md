@@ -4,12 +4,24 @@ All notable changes to OwnFin are documented here.
 
 ---
 
+## [2.8.4-beta] — 2026-05-29
+
+### Added
+- **ISIN price fallback**: `fetch_price()` now tries the stored ticker first; if Yahoo Finance returns nothing, it retries using the position's ISIN directly — Yahoo accepts ISINs for most European securities
+- **Sync error tracking**: failed price fetches are written to `positions.last_sync_error`; successful fetches clear it
+- **Sync error indicator**: Portfolio position list shows a ⚠ badge (hover for details) next to any position whose last price sync failed
+
+---
+
 ## [2.8.3-beta] — 2026-05-29
 
 ### Added
 - **Monthly net income setting**: new `monthly_income` field in Settings → Giro & Household; when set, turns percentage targets into absolute € amounts
 - **Absolute budget targets in Big 4**: bucket cards now show `€actual / €target` (e.g. `€842 / €1.500`) when income is configured; progress bar and over-budget highlight use the absolute amounts; percentage view unchanged when no income is set
 - Slider labels in Giro settings also preview the € equivalent while dragging (e.g. `50% · €1.500`)
+
+### Fixed
+- Budget baseline uses configured `monthly_income` (not transaction income) so the display is correct even before the paycheck arrives at month-end
 
 ---
 

@@ -40,6 +40,7 @@ from .portfolio import (
     create_position,
     update_position,
     deactivate_position,
+    update_position_sync_error,
     # Prices
     upsert_price,
     get_latest_prices,
