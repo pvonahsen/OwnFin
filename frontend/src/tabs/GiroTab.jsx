@@ -273,7 +273,10 @@ function GiroHero({ txns, lang, period, onPeriodChange, monthOffset, onMonthOffs
   });
 
   const totalSpend = buckets.fix + buckets.invest + buckets.goals + buckets.guilt;
-  const remaining = Math.max(0, income - totalSpend);
+  // Use configured monthly income as the budget baseline when set — actual income
+  // transactions arrive at month-end and would show €0 for most of the month.
+  const budgetBase = (monthlyIncome || 0) > 0 ? monthlyIncome : income;
+  const remaining = Math.max(0, budgetBase - totalSpend);
   const order = ['fix', 'invest', 'goals', 'guilt'];
   const canForward = monthOffset > 0;
 
@@ -334,11 +337,16 @@ function GiroHero({ txns, lang, period, onPeriodChange, monthOffset, onMonthOffs
       <div style={{ display: 'flex', gap: 16, marginTop: 12, marginBottom: 8 }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--ink-faint)', marginBottom: 3, letterSpacing: '0.05em' }}>
-            {lang === 'de' ? 'EINKOMMEN' : 'INCOME'}
+            {(monthlyIncome || 0) > 0 ? 'BUDGET' : (lang === 'de' ? 'EINKOMMEN' : 'INCOME')}
           </div>
           <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--pos)', fontVariantNumeric: 'tabular-nums' }}>
-            <span className="pv">{eur(income)}</span>
+            <span className="pv">{eur(budgetBase)}</span>
           </div>
+          {(monthlyIncome || 0) > 0 && income > 0 && (
+            <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 2 }}>
+              {eur(income)} {lang === 'de' ? 'erhalten' : 'received'}
+            </div>
+          )}
         </div>
         <div style={{ flex: 1, textAlign: 'right' }}>
           <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--ink-faint)', marginBottom: 3, letterSpacing: '0.05em' }}>
