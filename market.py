@@ -42,21 +42,38 @@ def _to_eur(ticker: str, raw: float) -> float:
     return raw
 
 
-def fetch_price(ticker: str) -> Optional[float]:
-    """Aktuellen Schlusskurs in EUR abrufen. Gibt None zurück bei Fehler."""
+def _try_symbol(symbol: str) -> Optional[float]:
+    """Fetch closing price for a single Yahoo Finance symbol (ticker or ISIN). Returns None on any failure."""
     try:
-        t = yf.Ticker(ticker)
-        hist = t.history(period="5d")
+        hist = yf.Ticker(symbol).history(period="5d")
         if hist.empty:
-            logger.warning(f"Keine Kursdaten für {ticker}")
             return None
         price = float(hist["Close"].iloc[-1])
-        if price != price:  # NaN-Check
+        if price != price:  # NaN
             return None
-        return _to_eur(ticker, price)
-    except Exception as e:
-        logger.error(f"Kursabruf fehlgeschlagen für {ticker}: {e}")
+        return _to_eur(symbol, price)
+    except Exception:
         return None
+
+
+def fetch_price(ticker: str, isin: str = None) -> Optional[float]:
+    """Aktuellen Schlusskurs in EUR abrufen.
+
+    Tries the stored ticker first; if that yields nothing and an ISIN is
+    supplied, tries the ISIN directly — Yahoo Finance accepts ISINs for most
+    European securities.  Returns None only when both paths fail.
+    """
+    price = _try_symbol(ticker)
+    if price is not None:
+        return price
+    if isin:
+        logger.info(f"Ticker '{ticker}' lieferte keinen Kurs — versuche ISIN {isin}")
+        price = _try_symbol(isin)
+        if price is not None:
+            logger.info(f"Kurs via ISIN {isin} gefunden (Ticker '{ticker}' ungültig)")
+            return price
+    logger.warning(f"Kein Kurs erhalten für {ticker}" + (f" / ISIN {isin}" if isin else ""))
+    return None
 
 
 def fetch_history(ticker: str, period: str = "2y") -> list:
@@ -216,15 +233,18 @@ def sync_all_positions(conn) -> dict:
         if not ticker or pos.get("asset_class") == "cash":
             continue
 
-        price = fetch_price(ticker)
+        isin = pos.get("isin") or None
+        price = fetch_price(ticker, isin=isin)
 
         if price is not None:
             database.upsert_price(conn, pos["id"], today, price)
+            database.update_position_sync_error(conn, pos["id"], None)
             updated += 1
             logger.info(f"Kurs aktualisiert: {pos['name']} ({ticker}) = {price:.4f}")
         else:
+            err = f"Kein Kurs: {ticker}" + (f" / ISIN {isin}" if isin else "")
+            database.update_position_sync_error(conn, pos["id"], err)
             errors += 1
-            logger.warning(f"Kein Kurs erhalten für {pos['name']} ({ticker})")
 
         # Rate Limiting: 1 Sekunde Pause zwischen Abrufen
         time.sleep(1)

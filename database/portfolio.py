@@ -48,6 +48,11 @@ def deactivate_position(conn: sqlite3.Connection, pos_id: int) -> None:
     conn.commit()
 
 
+def update_position_sync_error(conn: sqlite3.Connection, pos_id: int, error) -> None:
+    """Set or clear the last_sync_error for a position. Pass None to clear."""
+    conn.execute("UPDATE positions SET last_sync_error=? WHERE id=?", (error, pos_id))
+
+
 # ── Prices ────────────────────────────────────────────────────────────────────
 
 def upsert_price(conn: sqlite3.Connection, position_id: int, date: str, price: float, currency: str = "EUR") -> None:

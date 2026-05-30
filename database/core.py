@@ -406,6 +406,15 @@ def _migrate_seed_default_categories(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
+def _migrate_add_position_sync_error(conn: sqlite3.Connection) -> None:
+    """Add last_sync_error column to positions for price-sync failure tracking."""
+    try:
+        conn.execute("ALTER TABLE positions ADD COLUMN last_sync_error TEXT DEFAULT NULL")
+        conn.commit()
+    except Exception:
+        pass  # column already exists
+
+
 def _migrate_create_users_table(conn: sqlite3.Connection) -> None:
     """
     Seed the users table from existing owner data in the DB.
@@ -648,6 +657,7 @@ def init_db() -> None:
     _run_once(conn, "create_phases_v1",            _migrate_create_phases_table)
     _run_once(conn, "add_scheduler_tax_fields_v1", _migrate_add_scheduler_tax_fields)
     _run_once(conn, "seed_default_categories_v1", _migrate_seed_default_categories)
+    _run_once(conn, "add_position_sync_error_v1", _migrate_add_position_sync_error)
 
     # Startup recalculation — not a migration, always runs
     _recalc_all_positions(conn)

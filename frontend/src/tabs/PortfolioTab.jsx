@@ -655,7 +655,12 @@ function PositionsList({ positions, lang, onEdit }) {
             onClick={() => onEdit(p)}
           >
             <div className="activity-text">
-              <div className="name">{p.name}</div>
+              <div className="name">
+                {p.name}
+                {p.last_sync_error && (
+                  <span title={p.last_sync_error} style={{ marginLeft: 6, fontSize: 11, color: 'var(--neg)', cursor: 'help' }}>⚠</span>
+                )}
+              </div>
               <div className="meta">{p.ticker} · <span className="pv">{num(p.units, 2)}</span> × {eur2(p.current_price)}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
